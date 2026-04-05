@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Live Tracking</title>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+</head>
+
+<body style="font-family:Arial; text-align:center;">
+
+<h2>📡 Live Tracking</h2>
+
+<div id="map" style="height:500px;"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+
+// 🔥 YOUR FIREBASE CONFIG
+const firebaseConfig = {
+  apiKey: "AIzaSyCsCphA9_GvIQH-c_eerGiS5nrw-gMF8RU",
+  authDomain: "mapping-32c20.firebaseapp.com",
+  databaseURL: "https://mapping-32c20-default-rtdb.firebaseio.com/",
+  projectId: "mapping-32c20",
+  storageBucket: "mapping-32c20.firebasestorage.app",
+  messagingSenderId: "451174192395",
+  appId: "1:451174192395:web:d2098e6a7780b799a8fe0e"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+// ID
+const params = new URLSearchParams(window.location.search);
+let id = params.get("id");
+
+if (!id) {
+  alert("Invalid link!");
+}
+
+// MAP INIT
+var map = L.map('map').setView([28.6139, 77.2090], 13);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© OpenStreetMap'
+}).addTo(map);
+
+var marker = L.marker([28.6139, 77.2090]).addTo(map);
+
+// LIVE DATA
+onValue(ref(db, "locations/" + id), (snapshot) => {
+  const data = snapshot.val();
+  if (data) {
+    marker.setLatLng([data.lat, data.lng]);
+    map.setView([data.lat, data.lng], 15);
+  }
+});
+</script>
+
+</body>
+</html>
